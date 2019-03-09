@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>地图服务</title>
+</head>
+<body>
+<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<link rel="stylesheet" href="static/leaflet.css"/>
+<script src="static/leaflet.js"></script>
+
+<nav class="navbar navbar-inverse">
+    <div class="col-md-4">
+        <button type="button" class="btn btn-warning" id="mark_button">标记</button>
+        <button type="button" class="btn btn-warning" id="clear_button">清除标记</button>
+        <button type="button" class="btn btn-warning" id="batchmark_button">批量标记</button>
+    </div>
+    <div class="col-md-4">
+        <p class="text-center"> 十处一科地图</p>
+    </div>
+    <div class="col-md-4">
+        <p class="text-right" id="point"></p>
+    </div>
+</nav>
+<style>
+    #mapid {
+        height: 1000px;
+    }
+</style>
+
+<div id="mapid">
+    <script type="text/javascript">
+        console.log("\n" +
+            " ( ) ( )\n" +
+            " | |_| |   _ _  _ _    _ _    _   _\n" +
+            " |  _  | /'_` )( '_`\\ ( '_`\\ ( ) ( )\n" +
+            " | | | |( (_| || (_) )| (_) )| (_) |\n" +
+            " (_) (_)`\\__,_)| ,__/'| ,__/'`\\__, |\n" +
+            "               | |    | |    ( )_| |\n" +
+            "               (_)    (_)    `\\___/'\n" +
+            " ");
+        console.log("十处一科袁梓齐开发，有问题请联系我：832113");
+        document.oncontextmenu = function (e) {
+            return false;
+        }
+        var map = L.map('mapid').setView([30, 100], 4);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
+        var marker_group = L.layerGroup().addTo(map);
+        map.on('mousemove', function (e) {
+            var latlng_str = e.latlng.toString().split("LatLng")[1];
+            $("#point").html(latlng_str)
+        })
+        map.on('dblclick',function (e) {
+            var marker = L.marker(e.latlng).addTo(marker_group);
+
+        })
+
+        $("#clear_button").click(function (e) {
+            map.removeLayer(marker_group);
+            marker_group = L.layerGroup().addTo(map);
+        })
+    </script>
+
+</div>
+</body>
+</html>
