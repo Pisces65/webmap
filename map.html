@@ -16,21 +16,19 @@
     <div class="col-md-4">
         <button type="button" class="btn btn-warning" id="mark_button">标记</button>
         <button type="button" class="btn btn-warning" id="clear_button">清除标记</button>
-        <button type="button" class="btn btn-warning" id="batchmark_button">批量标记</button>
+        <button type="button" class="btn btn-warning" id="batch_mark">批量标记</button>
     </div>
-    <div class="col-md-4">
-        <p class="text-center"> 地图</p>
+    <div class="col-md-2">
+        <p class="text-center">地图</p>
     </div>
     <div class="col-md-4">
         <p class="text-right" id="point"></p>
     </div>
 </nav>
-<style>
-    #mapid {
-        height: 1000px;
-    }
-</style>
 
+<style>
+    #mapid { height: 1000px; }
+</style>
 <div id="mapid">
     <script type="text/javascript">
         console.log("\n" +
@@ -42,28 +40,63 @@
             "               | |    | |    ( )_| |\n" +
             "               (_)    (_)    `\\___/'\n" +
             " ");
-        console.log("十处一科袁梓齐开发\n，有问题请联系我：832113");
+        console.log("袁梓齐开发\n有问题请联系我：832113");
         document.oncontextmenu = function (e) {
             return false;
-        }
+        };
         var map = L.map('mapid').setView([30, 100], 4);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
         var marker_group = L.layerGroup().addTo(map);
         map.on('mousemove', function (e) {
             var latlng_str = e.latlng.toString().split("LatLng")[1];
             $("#point").html(latlng_str)
-        })
+        });
         map.on('dblclick', function (e) {
             var marker = L.marker(e.latlng).addTo(marker_group);
 
-        })
+        });
 
         $("#clear_button").click(function (e) {
             map.removeLayer(marker_group);
             marker_group = L.layerGroup().addTo(map);
-        })
-    </script>
+        });
 
+        $('#mark_button').click(function (e) {
+            var mark_prompt = prompt("先纬度后经度，请用空格分开", "");
+            var point_latlng = L.latLng(mark_prompt.split(" ")[0], mark_prompt.split(" ")[1]);
+            var marker = L.marker(point_latlng).addTo(marker_group);
+        });
+        $('#batch_mark').click(function (e) {
+           $('#file').trigger('click');
+        });
+        function upload(input) {
+            //支持chrome IE10
+            if (window.FileReader) {
+                var file = input.files[0];
+                filename = file.name.split(".")[0];
+                var reader = new FileReader();
+                reader.onload = function() {
+                    var str_list = reader.result.split("\n");
+                    for (var i =0;i<str_list.length;i++){
+                        if(str_list[i].length > 1){
+                            a = str_list[i].split("\t")[0];
+                            b = str_list[i].split("\t")[1];
+                            console.log(a,b);
+                            var point_latlng = L.latLng(a, b);
+                            console.log("get here");
+                            var marker = L.marker(point_latlng).addTo(marker_group);
+                        }
+                    }
+                    console.log(str_list);
+                };
+                reader.readAsText(file);
+            }
+        }
+
+
+    </script>
+    <input type="file" id="file" onchange="upload(this)"
+           style="filter:alpha(opacity=0);opacity:0;width: 0;height: 0;"/>
 </div>
 </body>
 </html>
