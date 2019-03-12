@@ -17,17 +17,20 @@
         <button type="button" class="btn btn-warning" id="mark_button">标记</button>
         <button type="button" class="btn btn-warning" id="clear_button">清除标记</button>
         <button type="button" class="btn btn-warning" id="batch_mark">批量标记</button>
+        <button type="button" class="btn btn-warning" id="distance">测距</button>
     </div>
-    <div class="col-md-2">
-        <p class="text-center">地图</p>
-    </div>
+    <!--<div class="col-md-2">-->
+    <!--<p class="text-center">地图</p>-->
+    <!--</div>-->
     <div class="col-md-4">
         <p class="text-right" id="point"></p>
     </div>
 </nav>
 
 <style>
-    #mapid { height: 1000px; }
+    #mapid {
+        height: 1500px;
+    }
 </style>
 <div id="mapid">
     <script type="text/javascript">
@@ -44,6 +47,9 @@
             return false;
         };
         var map = L.map('mapid').setView([30, 100], 4);
+        var distance_state = 0;
+        var click_state = 0;
+        var point1_latlng, point2_latlng;
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
         var marker_group = L.layerGroup().addTo(map);
         map.on('mousemove', function (e) {
@@ -54,7 +60,22 @@
             var marker = L.marker(e.latlng).addTo(marker_group);
 
         });
+        map.on("click", function (e) {
+            if (distance_state === 1) {
 
+                if (click_state === 0){
+                    var marker = L.marker(e.latlng).addTo(marker_group);
+                    click_state = 1;
+                    point1_latlng = e.latlng;
+                }
+                else{
+                    click_state = 0;
+                    point2_latlng = e.latlng;
+                    var marker = L.marker(e.latlng).addTo(marker_group);
+                    marker.bindTooltip("距离为"+map.distance(point1_latlng,point2_latlng) / 1000+"公里").openTooltip();
+                }
+            }
+        });
         $("#clear_button").click(function (e) {
             map.removeLayer(marker_group);
             marker_group = L.layerGroup().addTo(map);
@@ -66,21 +87,33 @@
             var marker = L.marker(point_latlng).addTo(marker_group);
         });
         $('#batch_mark').click(function (e) {
-           $('#file').trigger('click');
+            $('#file').trigger('click');
         });
+        $('#distance').click(function (e) {
+            if (distance_state === 0) {
+                distance_state = 1;
+                $('#distance').removeClass('btn btn-warning').addClass('btn btn-danger');
+            } else {
+                distance_state = 0;
+
+                $('#distance').removeClass("btn btn-danger").addClass("btn btn-warning");
+            }
+
+        });
+
         function upload(input) {
             //支持chrome IE10
             if (window.FileReader) {
                 var file = input.files[0];
                 filename = file.name.split(".")[0];
                 var reader = new FileReader();
-                reader.onload = function() {
+                reader.onload = function () {
                     var str_list = reader.result.split("\n");
-                    for (var i =0;i<str_list.length;i++){
-                        if(str_list[i].length > 1){
+                    for (var i = 0; i < str_list.length; i++) {
+                        if (str_list[i].length > 1) {
                             a = str_list[i].split("\t")[0];
                             b = str_list[i].split("\t")[1];
-                            console.log(a,b);
+                            console.log(a, b);
                             var point_latlng = L.latLng(a, b);
                             console.log("get here");
                             var marker = L.marker(point_latlng).addTo(marker_group);
